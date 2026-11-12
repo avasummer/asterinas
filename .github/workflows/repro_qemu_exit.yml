@@ -31,6 +31,8 @@ jobs:
         run: bash tools/ci-qemu-exit/run.sh assertion-failure
       - name: Run triple-fault test through unchanged OSDK
         run: bash tools/ci-qemu-exit/run.sh triple-fault
+      - name: Run ordinary stack-overflow test through unchanged OSDK
+        run: bash tools/ci-qemu-exit/run.sh stack-overflow
       - name: Verify raw exit codes and missing completion
         if: always()
         run: bash tools/ci-qemu-exit/verify.sh

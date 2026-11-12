@@ -14,6 +14,28 @@ fn ci_exit_assertion_failure() {
     panic!("CI_EXIT_REPRO: intentional assertion failure");
 }
 
+#[inline(never)]
+fn recurse_until_stack_overflow(depth: usize) -> usize {
+    let frame = [depth as u8; 1024];
+    core::hint::black_box(&frame);
+    let result = if depth == 0 {
+        0
+    } else {
+        recurse_until_stack_overflow(depth - 1)
+    };
+    core::hint::black_box(&frame);
+    result
+}
+
+#[ktest]
+fn ci_exit_stack_overflow() {
+    crate::early_println!("CI_EXIT_REPRO: ordinary Rust recursion before stack overflow");
+
+    // An ordinary unbounded recursion exhausts the task's kernel stack. Without a
+    // valid stack for the page-fault handler, the fault escalates to a triple fault.
+    core::hint::black_box(recurse_until_stack_overflow(usize::MAX));
+}
+
 #[ktest]
 fn ci_exit_triple_fault() {
     #[repr(C, packed)]

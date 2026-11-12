@@ -25,13 +25,25 @@ if grep -q 'All crates tested\|test result:' "$log_dir/triple-fault.osdk.log"; t
     exit 1
 fi
 
+[[ $(< "$log_dir/stack-overflow.qemu-status") == 0 ]]
+[[ $(< "$log_dir/stack-overflow.osdk-status") == 0 ]]
+grep -q 'CI_EXIT_REPRO: ordinary Rust recursion before stack overflow' \
+    "$log_dir/stack-overflow.osdk.log"
+grep -qi 'triple fault' "$log_dir/stack-overflow.qemu.log"
+if grep -q 'All crates tested\|test result:' "$log_dir/stack-overflow.osdk.log"; then
+    echo "unexpected test completion after the stack overflow" >&2
+    exit 1
+fi
+
 summary='| Guest test | QEMU exit | OSDK exit | Runner completed |
 | --- | --- | --- | --- |
 | Successful control | 33 | 0 | Yes |
 | Assertion failure | 65 | 1 | Failed |
 | Triple fault | 0 | 0 | No |
+| Stack overflow (#2264) | 0 | 0 | No |
 
-Confirmed: OSDK accepts a triple fault as a successful test run.'
+Confirmed: OSDK accepts a triple fault or an ordinary kernel stack overflow
+as a successful test run.'
 printf '%s\n' "$summary"
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     printf '%s\n' "$summary" >> "$GITHUB_STEP_SUMMARY"

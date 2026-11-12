@@ -8,7 +8,8 @@ case "${1:-}" in
     success) test_name=ci_exit_success ;;
     assertion-failure) test_name=ci_exit_assertion_failure ;;
     triple-fault) test_name=ci_exit_triple_fault ;;
-    *) echo "usage: $0 success|assertion-failure|triple-fault" >&2; exit 2 ;;
+    stack-overflow) test_name=ci_exit_stack_overflow ;;
+    *) echo "usage: $0 success|assertion-failure|triple-fault|stack-overflow" >&2; exit 2 ;;
 esac
 
 repo_dir=$(cd "$(dirname "$0")/../.." && pwd)
