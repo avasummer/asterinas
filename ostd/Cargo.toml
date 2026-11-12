@@ -71,6 +71,7 @@ unwinding = { workspace = true, features = ["fde-static"] }
 
 [features]
 default = ["cvm_guest"]
+ci_exit_repro = []
 # The guest OS support for Confidential VMs (CVMs), e.g., Intel TDX
 cvm_guest = ["dep:tdx-guest"]
 coverage = ["minicov"]

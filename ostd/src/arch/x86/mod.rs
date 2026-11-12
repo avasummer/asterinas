@@ -3,6 +3,8 @@
 //! Platform-specific code for the x86 platform.
 
 pub(crate) mod boot;
+#[cfg(all(ktest, feature = "ci_exit_repro"))]
+mod ci_exit_repro;
 pub mod cpu;
 pub mod device;
 pub(crate) mod io;

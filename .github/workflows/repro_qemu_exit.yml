@@ -1,0 +1,43 @@
+name: Reproduce QEMU Test Exit Misclassification
+
+on:
+  push:
+    branches:
+      - test/ci-qemu-exit-status-20261112
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce:
+    if: github.repository == 'avasummer/asterinas'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: asterinas/osdk-dev:0.19.0-20261012
+    env:
+      RUSTUP_HOME: /root/.rustup
+      OSDK_LOCAL_DEV: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build OSDK from this checkout
+        run: make install_osdk
+      - name: Run successful control
+        run: bash tools/ci-qemu-exit/run.sh success
+      - name: Run ordinary failing control
+        id: failing_control
+        continue-on-error: true
+        run: bash tools/ci-qemu-exit/run.sh assertion-failure
+      - name: Run triple-fault test through unchanged OSDK
+        run: bash tools/ci-qemu-exit/run.sh triple-fault
+      - name: Verify raw exit codes and missing completion
+        if: always()
+        run: bash tools/ci-qemu-exit/verify.sh
+      - name: Upload raw logs and exit codes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qemu-exit-reproduction
+          path: target/ci-qemu-exit/
+          retention-days: 7

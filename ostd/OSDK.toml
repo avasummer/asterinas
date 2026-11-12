@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: MPL-2.0
+
+[boot]
+method = "vmm-direct"
+kcmd_args = ["earlycon"]
+
+[grub]
+boot_protocol = "multiboot"
+
+[qemu]
+args = """\
+    -machine q35 \
+    -cpu max \
+    -m 512M \
+    -smp 1 \
+    --no-reboot \
+    -display none \
+    -serial stdio \
+    -monitor none \
+    -device isa-debug-exit,iobase=0xf4,iosize=0x04
+"""
